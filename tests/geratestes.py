@@ -2,7 +2,7 @@
 
 import random
 pairs = set()
-n=19
+n=17
 while len(pairs) < n:
     x = random.randint(0, (n*n)-1)
     y = random.randint(0, (n*n)-1)
