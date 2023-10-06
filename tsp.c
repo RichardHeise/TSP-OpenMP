@@ -17,15 +17,9 @@ typedef struct {
     int dist;
 } d_info;
 
+int *paths;
 d_info **d_matrix;
 int *dist_to_origin;
-
-int present (int town, int depth, int *path) {
-    int i;
-    for (i = 0; i < depth; i++)
-        if (path[i] == town) return 1;
-    return 0;
-}
 
 void tsp (int depth, int current_length, int *path) {
     int i;
@@ -39,10 +33,12 @@ void tsp (int depth, int current_length, int *path) {
         me = path[depth - 1];
         for (i = 0; i < nb_towns; i++) {
             town = d_matrix[me][i].to_town;
-            if (!present (town, depth, path)) {
+            if (!paths[town]) {
                 path[depth] = town;
+                paths[town] = 1;
                 dist = d_matrix[me][i].dist;
                 tsp (depth + 1, current_length + dist, path);
+                paths[town] = 0;
             }
         }
     }
@@ -87,8 +83,6 @@ void init_tsp() {
     int i, st;
     int *x, *y;
 
-    min_distance = INT_MAX;
-
     st = scanf("%u", &nb_towns);
     if (st != 1) exit(1);
  
@@ -118,7 +112,9 @@ int run_tsp() {
     init_tsp();
     
     path = (int*) malloc(sizeof(int) * nb_towns);
+    paths = calloc(sizeof(int), nb_towns);
     path[0] = 0;
+    paths[0] = 1;
     
     tsp (1, 0, path);
 

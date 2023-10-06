@@ -2,4 +2,4 @@ make clean
 make
 echo -n 'Running code...'
 echo ''
-./tspp < tsp.in
+time ./tspp < teste$1.out
