@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <math.h>
+#include <sys/time.h>
+#include <time.h>
 
 int min_distance;
 int nb_towns;
@@ -17,9 +19,15 @@ typedef struct {
     int dist;
 } d_info;
 
-int *paths;
 d_info **d_matrix;
 int *dist_to_origin;
+int *paths;
+
+double get_time() {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (double)tv.tv_sec + (double)tv.tv_usec / 1e6;
+}
 
 void tsp (int depth, int current_length, int *path) {
     int i;
@@ -69,7 +77,7 @@ void greedy_shortest_first_heuristic(int *x, int *y) {
             }
             tempdist [town] = INT_MAX;
             d_matrix[i][j].to_town = town;
-            dist = (int)sqrt(tmp);
+            dist = (int) sqrt (tmp);
             d_matrix[i][j].dist = dist;
             if (i == 0)
                 dist_to_origin[town] = dist;
@@ -82,6 +90,8 @@ void greedy_shortest_first_heuristic(int *x, int *y) {
 void init_tsp() {
     int i, st;
     int *x, *y;
+
+    min_distance = INT_MAX;
 
     st = scanf("%u", &nb_towns);
     if (st != 1) exit(1);
@@ -119,6 +129,7 @@ int run_tsp() {
     tsp (1, 0, path);
 
     free(path);
+    free(paths);
     for (i = 0; i < nb_towns; i++)
         free(d_matrix[i]);
     free(d_matrix);
@@ -130,7 +141,12 @@ int main (int argc, char **argv) {
     int num_instances, st;
     st = scanf("%u", &num_instances);
     if (st != 1) exit(1);
-    while(num_instances-- > 0)
-        printf("%d\n", run_tsp());
+        while(num_instances-- > 0) {
+            double start_time, end_time;
+            start_time = get_time(); // Início da medição de tempo
+            printf("%d\n", run_tsp());
+            end_time = get_time(); // Término da medição de tempo
+            printf("Tempo total: %.2f segundos\n", end_time - start_time);
+        }
     return 0;
 }

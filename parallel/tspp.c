@@ -7,10 +7,6 @@
 #include <string.h>
 #include <sys/time.h>
 
-#ifndef ENABLE_PROFILING
-#define ENABLE_PROFILING 0
-#endif
-
 int min_distance;
 int nb_towns;
 int *dist_to_origin;
@@ -28,68 +24,61 @@ double get_time() {
     return (double)tv.tv_sec + (double)tv.tv_usec / 1e6;
 }
 
-void tsp(int depth, int current_length, int *path, int *paths) {
-    double start_time, end_time;
+void tsp_aux(int depth, int current_length, int *path, int *paths) {
 
     if (current_length >= min_distance) return;
 
     if (depth == nb_towns) {
         current_length += dist_to_origin[path[nb_towns - 1]];
-        if (current_length < min_distance)
+        if (current_length < min_distance) {
             min_distance = current_length;
-    } else if (depth == 1) {
-        int me = path[depth - 1];
+        }
+        return;
+    }
+    int me = path[depth - 1];
+    for (int i = 0; i < nb_towns; i++) {
+        int town = d_matrix[me][i].to_town;
+        if (!paths[town]) {
+            int dist = d_matrix[me][i].dist;
+            path[depth] = town;
+            paths[town] = 1;
+            tsp_aux(depth + 1, current_length + dist, path, paths);
+            paths[town] = 0;
+        }
+    }
+}
 
-        #if ENABLE_PROFILING
-        start_time = get_time();
-        #endif
+void tsp(int depth, int current_length, int *path, int *paths) {
 
-        #pragma omp parallel for schedule(dynamic) reduction(min:min_distance)
-        for (int i = 0; i < nb_towns; i++) {
-            int *path_local = (int *)malloc(nb_towns * sizeof(int));
-            int *paths_local = (int *)malloc(nb_towns * sizeof(int));
-            memcpy(path_local, path, nb_towns * sizeof(int));
-            memcpy(paths_local, paths, nb_towns * sizeof(int));
+    if (current_length >= min_distance) return;
 
-            int town = d_matrix[me][i].to_town;
-            if (!paths_local[town]) {
-                int dist = d_matrix[me][i].dist;
-                path_local[depth] = town;
-                paths_local[town] = 1;
-                tsp(depth + 1, current_length + dist, path_local, paths_local);
-                paths_local[town] = 0;
-            }
+    if (depth == nb_towns) {
+        current_length += dist_to_origin[path[nb_towns - 1]];
+        if (current_length < min_distance) {
+            min_distance = current_length;
+        }
+        return;
+    }    
+    int me = path[depth - 1];
 
-            free(path_local);
-            free(paths_local);
+    #pragma omp parallel for schedule(dynamic) reduction(min:min_distance)
+    for (int i = 0; i < nb_towns; i++) {
+        int *path_local = (int *)malloc(nb_towns * sizeof(int));
+        int *paths_local = (int *)malloc(nb_towns * sizeof(int));
+        memcpy(path_local, path, nb_towns * sizeof(int));
+        memcpy(paths_local, paths, nb_towns * sizeof(int));
+
+        int town = d_matrix[me][i].to_town;
+        if (!paths_local[town]) {
+            int dist = d_matrix[me][i].dist;
+            path_local[depth] = town;
+            paths_local[town] = 1;
+            tsp_aux(depth + 1, current_length + dist, path_local, paths_local);
+            paths_local[town] = 0;
         }
 
-        #if ENABLE_PROFILING
-        end_time = get_time();
-        printf("Depth 1 took %lf seconds\n", end_time - start_time);
-        #endif
-    } else {
-        int me = path[depth - 1];
-
-        #if ENABLE_PROFILING
-        start_time = get_time();
-        #endif
-
-        for (int i = 0; i < nb_towns; i++) {
-            int town = d_matrix[me][i].to_town;
-            if (!paths[town]) {
-                int dist = d_matrix[me][i].dist;
-                path[depth] = town;
-                paths[town] = 1;
-                tsp(depth + 1, current_length + dist, path, paths);
-                paths[town] = 0;
-            }
-        }
-
-        #if ENABLE_PROFILING
-        end_time = get_time();
-        printf("Depth %d took %lf seconds\n", depth, end_time - start_time);
-        #endif
+        free(path_local);
+        free(paths_local);
     }
 }
 
@@ -169,6 +158,7 @@ int run_tsp() {
     tsp (1, 0, path, paths);
 
     free(path);
+    free(paths);
     for (i = 0; i < nb_towns; i++)
         free(d_matrix[i]);
     free(d_matrix);
@@ -180,7 +170,12 @@ int main (int argc, char **argv) {
     int num_instances, st;
     st = scanf("%u", &num_instances);
     if (st != 1) exit(1);
-    while(num_instances-- > 0)
-        printf("%d\n", run_tsp());
+        while(num_instances-- > 0) {
+            double start_time, end_time;
+            start_time = omp_get_wtime(); // Início da medição de tempo
+            printf("%d\n", run_tsp());
+            end_time = omp_get_wtime(); // Término da medição de tempo
+            printf("Tempo total: %.2f segundos\n", end_time - start_time);
+        }
     return 0;
 }
