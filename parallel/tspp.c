@@ -154,8 +154,12 @@ int run_tsp() {
     paths = calloc(sizeof(int), nb_towns);
     path[0] = 0;
     paths[0] = 1;
-    
+
+    double start_time, end_time;
+    start_time = omp_get_wtime(); // Início da medição de tempo
     tsp (1, 0, path, paths);
+    end_time = omp_get_wtime(); // Término da medição de tempo
+    printf("Tempo paralelo: %f segundos\n", end_time - start_time);
 
     free(path);
     free(paths);
@@ -175,7 +179,7 @@ int main (int argc, char **argv) {
             start_time = omp_get_wtime(); // Início da medição de tempo
             printf("%d\n", run_tsp());
             end_time = omp_get_wtime(); // Término da medição de tempo
-            printf("Tempo total: %.2f segundos\n", end_time - start_time);
+            printf("Tempo total: %f segundos\n", end_time - start_time);
         }
     return 0;
 }

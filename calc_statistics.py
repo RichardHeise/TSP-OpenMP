@@ -4,7 +4,7 @@ import sys
 import statistics
 
 def print_usage():
-    print("Uso: python rodaTestes.py <N>")
+    print("Uso: ./rodaTestes.py <N>")
     print("<N> é o número de entradas a serem inseridas posteriormente.")
 
 # Verifica o número correto de argumentos na linha de comando
