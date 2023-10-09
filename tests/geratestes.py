@@ -5,7 +5,7 @@ import sys
 
 # Verifica se o número correto de argumentos foi passado na linha de comando
 if len(sys.argv) != 3:
-    print("Uso: python gerador_testes.py <N> <M>")
+    print("Uso: python geratestes.py <N> <M>")
     sys.exit(1)
 
 try:
