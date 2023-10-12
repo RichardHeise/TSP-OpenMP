@@ -10,7 +10,7 @@ run_test() {
     (cd "$folder" && OMP_NUM_THREADS="$threads" ./run.sh "Relevants/$cities" | grep "Tempo" | cut -d " " -f3) >> results.st
 }
 
-echo "Starting test round..." > results.st
+echo "Starting test round..." >> results.st
 
 # Configurações sequenciais
 echo -e "\nSequential data:" >> results.st

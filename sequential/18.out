@@ -1,0 +1,28 @@
+rm -f tsp.o tsp
+gcc -O3 tsp.c -c -o tsp.o -lm
+gcc -O3 tsp.o -o tsp -lm
+Running code...
+rm -f tsp.o tsp
+gcc -O3 tsp.c -c -o tsp.o -lm
+gcc -O3 tsp.o -o tsp -lm
+Running code...
+1185
+Tempo total: 62.78 segundos
+1207
+Tempo total: 257.26 segundos
+1263
+Tempo total: 753.10 segundos
+1203
+Tempo total: 621.53 segundos
+1352
+Tempo total: 875.02 segundos
+1270
+Tempo total: 304.62 segundos
+1350
+Tempo total: 1568.23 segundos
+1153
+Tempo total: 312.19 segundos
+1095
+Tempo total: 35.68 segundos
+1137
+Tempo total: 39.13 segundos
