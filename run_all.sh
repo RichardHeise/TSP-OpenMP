@@ -22,7 +22,7 @@ done
 # Configurações paralelas com diferentes valores de OMP_NUM_THREADS
 echo -e "\nParallel data:" >> results.st
 
-for threads in 2 4 8; do
+for threads in 2 3 4; do
     echo -e "\nTesting with OMP_NUM_THREADS=$threads\n" >> results.st
 
     for i in {16..19}; do
